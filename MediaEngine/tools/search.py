@@ -42,7 +42,7 @@ utils_dir = os.path.join(root_dir, 'utils')
 if utils_dir not in sys.path:
     sys.path.append(utils_dir)
 
-from retry_helper import with_graceful_retry, SEARCH_API_RETRY_CONFIG
+from retry_helper import silent_retry, SEARCH_API_RETRY_CONFIG
 
 # --- 1. 数据结构定义 ---
 from dataclasses import dataclass, field
@@ -180,7 +180,7 @@ class BochaMultimodalSearch:
         return final_response
 
 
-    @with_graceful_retry(SEARCH_API_RETRY_CONFIG, default_return=BochaResponse(query="搜索失败"))
+    @silent_retry(SEARCH_API_RETRY_CONFIG, default_return=BochaResponse(query="搜索失败"))
     def _search_internal(self, **kwargs) -> BochaResponse:
         """内部通用的搜索执行器，所有工具最终都调用此方法"""
         query = kwargs.get("query", "Unknown Query")
@@ -305,7 +305,7 @@ class AnspireAISearch:
 
         return final_response
     
-    @with_graceful_retry(SEARCH_API_RETRY_CONFIG, default_return=AnspireResponse(query="搜索失败"))
+    @silent_retry(SEARCH_API_RETRY_CONFIG, default_return=AnspireResponse(query="搜索失败"))
     def _search_internal(self, **kwargs) -> AnspireResponse:
         """内部通用的搜索执行器，所有工具最终都调用此方法"""
         query = kwargs.get("query", "Unknown Query")

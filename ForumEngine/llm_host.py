@@ -21,7 +21,7 @@ utils_dir = os.path.join(root_dir, 'utils')
 if utils_dir not in sys.path:
     sys.path.append(utils_dir)
 
-from utils.retry_helper import with_graceful_retry, SEARCH_API_RETRY_CONFIG
+from utils.retry import silent_retry, SEARCH_API_RETRY_CONFIG
 
 
 class ForumHost:
@@ -207,7 +207,7 @@ class ForumHost:
         
         return prompt
     
-    @with_graceful_retry(SEARCH_API_RETRY_CONFIG, default_return={"success": False, "error": "API服务暂时不可用"})
+    @silent_retry(SEARCH_API_RETRY_CONFIG, default_return={"success": False, "error": "API服务暂时不可用"})
     def _call_qwen_api(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
         """调用Qwen API"""
         try:

@@ -22,7 +22,7 @@ utils_dir = os.path.join(root_dir, 'utils')
 if utils_dir not in sys.path:
     sys.path.append(utils_dir)
 
-from retry_helper import with_graceful_retry, SEARCH_API_RETRY_CONFIG
+from retry_helper import silent_retry, SEARCH_API_RETRY_CONFIG
 
 @dataclass
 class KeywordOptimizationResponse:
@@ -188,7 +188,7 @@ class KeywordOptimizer:
         
         return prompt
     
-    @with_graceful_retry(SEARCH_API_RETRY_CONFIG, default_return={"success": False, "error": "关键词优化服务暂时不可用"})
+    @silent_retry(SEARCH_API_RETRY_CONFIG, default_return={"success": False, "error": "关键词优化服务暂时不可用"})
     def _call_qwen_api(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
         """调用Qwen API"""
         try:
