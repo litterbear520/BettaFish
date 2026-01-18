@@ -249,6 +249,10 @@ node_modules/
 # *.sqlite3
 # subtitle_db
 
+# Docker 数据库持久化目录
+db_data/
+db_data_mysql/
+
 # ==== UI 和 Web 相关 ====
 # 前端构建文件
 dist/

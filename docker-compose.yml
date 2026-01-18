@@ -37,3 +37,19 @@ services:
       - "${POSTGRES_PORT:-5444}:5432"
     volumes:
       - ./db_data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8.0
+    container_name: bettafish-db-mysql
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-bettafish}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bettafish}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-bettafish}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bettafish}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./db_data_mysql:/var/lib/mysql
