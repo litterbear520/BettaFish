@@ -105,7 +105,7 @@ class Research:
         """获取搜索次数"""
         return len(self.search_history)
     
-    def increment_reflection(self):
+    def add_reflection(self):
         """增加反思次数"""
         self.reflection_iteration += 1
     

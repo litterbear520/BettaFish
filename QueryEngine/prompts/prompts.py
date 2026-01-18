@@ -149,7 +149,7 @@ SYSTEM_PROMPT_FIRST_SEARCH = f"""
 
 你可以使用以下6种专业的新闻搜索工具：
 
-1. **basic_search_news** - 基础新闻搜索工具
+1. **basic_search** - 基础新闻搜索工具
    - 适用于：一般性的新闻搜索，不确定需要何种特定搜索时
    - 特点：快速、标准的通用搜索，是最常用的基础工具
 
@@ -277,7 +277,7 @@ SYSTEM_PROMPT_REFLECTION = f"""
 
 你可以使用以下6种专业的新闻搜索工具：
 
-1. **basic_search_news** - 基础新闻搜索工具
+1. **basic_search** - 基础新闻搜索工具
 2. **deep_search_news** - 深度新闻分析工具
 3. **search_news_last_24_hours** - 24小时最新新闻工具  
 4. **search_news_last_week** - 本周新闻工具

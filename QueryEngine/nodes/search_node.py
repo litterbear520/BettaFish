@@ -13,7 +13,7 @@ from ..prompts import SYSTEM_PROMPT_FIRST_SEARCH, SYSTEM_PROMPT_REFLECTION
 from ..utils.text_processing import (
     remove_reasoning_from_output,
     clean_json_tags,
-    extract_clean_response,
+    extract_json,
     fix_incomplete_json
 )
 
@@ -103,7 +103,7 @@ class FirstSearchNode(BaseNode):
             except JSONDecodeError as e:
                 logger.error(f"JSON解析失败: {str(e)}")
                 # 使用更强大的提取方法
-                result = extract_clean_response(cleaned_output)
+                result = extract_json(cleaned_output)
                 if "error" in result:
                     logger.error("JSON解析失败，尝试修复...")
                     # 尝试修复JSON
@@ -238,7 +238,7 @@ class ReflectionNode(BaseNode):
             except JSONDecodeError as e:
                 logger.error(f"JSON解析失败: {str(e)}")
                 # 使用更强大的提取方法
-                result = extract_clean_response(cleaned_output)
+                result = extract_json(cleaned_output)
                 if "error" in result:
                     logger.error("JSON解析失败，尝试修复...")
                     # 尝试修复JSON

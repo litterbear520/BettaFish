@@ -4,7 +4,7 @@
 """
 
 from .search import (
-    TavilyNewsAgency, 
+    TavilyToolsClient, 
     SearchResult, 
     TavilyResponse, 
     ImageResult,
@@ -12,7 +12,7 @@ from .search import (
 )
 
 __all__ = [
-    "TavilyNewsAgency", 
+    "TavilyToolsClient", 
     "SearchResult", 
     "TavilyResponse", 
     "ImageResult",

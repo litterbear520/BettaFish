@@ -38,7 +38,7 @@ class LLMClient:
 
         self.api_key = api_key
         self.base_url = base_url
-        self.model_name = model
+        self.model = model
         self.provider = model
         timeout_fallback = os.getenv("LLM_REQUEST_TIMEOUT") or os.getenv("QUERY_ENGINE_REQUEST_TIMEOUT") or "1800"
         try:
@@ -73,7 +73,7 @@ class LLMClient:
         timeout = kwargs.pop("timeout", self.timeout)
 
         response = self.client.chat.completions.create(
-            model=self.model_name,
+            model=self.model,
             messages=messages,
             timeout=timeout,
             **extra_params,
@@ -111,7 +111,7 @@ class LLMClient:
 
         try:
             stream = self.client.chat.completions.create(
-                model=self.model_name,
+                model=self.model,
                 messages=messages,
                 timeout=timeout,
                 **extra_params,

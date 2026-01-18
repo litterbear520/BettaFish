@@ -19,8 +19,8 @@ from .nodes import (
     ReportFormattingNode
 )
 from .state import State
-from .tools import TavilyNewsAgency, TavilyResponse
-from .utils import Settings, format_search_results_for_prompt
+from .tools import TavilyToolsClient, TavilyResponse
+from .utils import Settings, get_search_content
 from loguru import logger
 
 class DeepSearchAgent:
@@ -41,7 +41,7 @@ class DeepSearchAgent:
         self.llm_client = self._initialize_llm()
         
         # 初始化搜索工具集
-        self.search_agency = TavilyNewsAgency(api_key=self.config.TAVILY_API_KEY)
+        self.search_agency = TavilyToolsClient(api_key=self.config.TAVILY_API_KEY)
         
         # 初始化节点
         self._initialize_nodes()
@@ -60,7 +60,7 @@ class DeepSearchAgent:
         """初始化LLM客户端"""
         return LLMClient(
             api_key=self.config.QUERY_ENGINE_API_KEY,
-            model_name=self.config.QUERY_ENGINE_MODEL_NAME,
+            model=self.config.QUERY_ENGINE_MODEL_NAME,
             base_url=self.config.QUERY_ENGINE_BASE_URL,
         )
     
@@ -103,7 +103,7 @@ class DeepSearchAgent:
         
         Args:
             tool_name: 工具名称，可选值：
-                - "basic_search_news": 基础新闻搜索（快速、通用）
+                - "basic_search": 基础新闻搜索（快速、通用）
                 - "deep_search_news": 深度新闻分析
                 - "search_news_last_24_hours": 24小时内最新新闻
                 - "search_news_last_week": 本周新闻
@@ -117,9 +117,9 @@ class DeepSearchAgent:
         """
         logger.info(f"  → 执行搜索工具: {tool_name}")
         
-        if tool_name == "basic_search_news":
+        if tool_name == "basic_search":
             max_results = kwargs.get("max_results", 7)
-            return self.search_agency.basic_search_news(query, max_results)
+            return self.search_agency.basic_search(query, max_results)
         elif tool_name == "deep_search_news":
             return self.search_agency.deep_search_news(query)
         elif tool_name == "search_news_last_24_hours":
@@ -136,7 +136,7 @@ class DeepSearchAgent:
             return self.search_agency.search_news_by_date(query, start_date, end_date)
         else:
             logger.warning(f"  ⚠️  未知的搜索工具: {tool_name}，使用默认基础搜索")
-            return self.search_agency.basic_search_news(query)
+            return self.search_agency.basic_search(query)
     
     def research(self, query: str, save_report: bool = True) -> str:
         """
@@ -228,7 +228,7 @@ class DeepSearchAgent:
         logger.info("  - 生成搜索查询...")
         search_output = self.first_search_node.run(search_input)
         search_query = search_output["search_query"]
-        search_tool = search_output.get("search_tool", "basic_search_news")  # 默认工具
+        search_tool = search_output.get("search_tool", "basic_search")  # 默认工具
         reasoning = search_output["reasoning"]
         
         logger.info(f"  - 搜索查询: {search_query}")
@@ -253,10 +253,10 @@ class DeepSearchAgent:
                 else:
                     logger.info(f"  ⚠️  日期格式错误（应为YYYY-MM-DD），改用基础搜索")
                     logger.info(f"      提供的日期: start_date={start_date}, end_date={end_date}")
-                    search_tool = "basic_search_news"
+                    search_tool = "basic_search"
             else:
                 logger.info(f"  ⚠️  search_news_by_date工具缺少时间参数，改用基础搜索")
-                search_tool = "basic_search_news"
+                search_tool = "basic_search"
         
         search_response = self.execute_search_tool(search_tool, search_query, **search_kwargs)
         
@@ -292,7 +292,7 @@ class DeepSearchAgent:
             "title": paragraph.title,
             "content": paragraph.content,
             "search_query": search_query,
-            "search_results": format_search_results_for_prompt(
+            "search_results": get_search_content(
                 search_results, self.config.SEARCH_CONTENT_MAX_LENGTH
             )
         }
@@ -321,7 +321,7 @@ class DeepSearchAgent:
             # 生成反思搜索查询
             reflection_output = self.reflection_node.run(reflection_input)
             search_query = reflection_output["search_query"]
-            search_tool = reflection_output.get("search_tool", "basic_search_news")  # 默认工具
+            search_tool = reflection_output.get("search_tool", "basic_search")  # 默认工具
             reasoning = reflection_output["reasoning"]
             
             logger.info(f"    反思查询: {search_query}")
@@ -344,10 +344,10 @@ class DeepSearchAgent:
                     else:
                         logger.info(f"    ⚠️  日期格式错误（应为YYYY-MM-DD），改用基础搜索")
                         logger.info(f"        提供的日期: start_date={start_date}, end_date={end_date}")
-                        search_tool = "basic_search_news"
+                        search_tool = "basic_search"
                 else:
                     logger.info(f"    ⚠️  search_news_by_date工具缺少时间参数，改用基础搜索")
-                    search_tool = "basic_search_news"
+                    search_tool = "basic_search"
             
             search_response = self.execute_search_tool(search_tool, search_query, **search_kwargs)
             
@@ -382,7 +382,7 @@ class DeepSearchAgent:
                 "title": paragraph.title,
                 "content": paragraph.content,
                 "search_query": search_query,
-                "search_results": format_search_results_for_prompt(
+                "search_results": get_search_content(
                     search_results, self.config.SEARCH_CONTENT_MAX_LENGTH
                 ),
                 "paragraph_latest_state": paragraph.research.latest_summary

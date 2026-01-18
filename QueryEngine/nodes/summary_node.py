@@ -14,9 +14,9 @@ from ..prompts import SYSTEM_PROMPT_FIRST_SUMMARY, SYSTEM_PROMPT_REFLECTION_SUMM
 from ..utils.text_processing import (
     remove_reasoning_from_output,
     clean_json_tags,
-    extract_clean_response,
+    extract_json,
     fix_incomplete_json,
-    format_search_results_for_prompt
+    get_search_content
 )
 
 # 导入论坛读取工具
@@ -355,7 +355,7 @@ class ReflectionSummaryNode(StateMutationNode):
             # 更新状态
             if 0 <= paragraph_index < len(state.paragraphs):
                 state.paragraphs[paragraph_index].research.latest_summary = updated_summary
-                state.paragraphs[paragraph_index].research.increment_reflection()
+                state.paragraphs[paragraph_index].research.add_reflection()
                 logger.info(f"已更新段落 {paragraph_index} 的反思总结")
             else:
                 raise ValueError(f"段落索引 {paragraph_index} 超出范围")
