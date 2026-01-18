@@ -79,7 +79,7 @@ class TavilyToolsClient:
     def _tavily_search(self, **kwargs) -> TavilyResponse:
         """内部通用的搜索执行器，所有工具最终都调用此方法"""
         try:
-            kwargs['topic'] = 'general'
+            kwargs['topic'] = 'news'
             api_params = {k: v for k, v in kwargs.items() if v is not None}
             response_dict = self._client.search(**api_params)
             
