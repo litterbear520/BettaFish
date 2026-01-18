@@ -55,14 +55,10 @@ class RetryConfig:
 DEFAULT_RETRY_CONFIG = RetryConfig()
 
 def with_retry(config: RetryConfig = None):
-    """
-    重试装饰器
+    """重试装饰器
     
-    Args:
-        config: 重试配置，如果不提供则使用默认配置
-    
-    Returns:
-        装饰器函数
+    :param config: 重试配置，如果不提供则使用默认配置
+    :param returns: 装饰器函数
     """
     if config is None:
         config = DEFAULT_RETRY_CONFIG
@@ -70,32 +66,28 @@ def with_retry(config: RetryConfig = None):
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
-            last_exception = None
-            
-            for attempt in range(config.max_retries + 1):  # +1 因为第一次不算重试
+            for retry in range(config.max_retries + 1):  # +1 因为第一次不算重试
                 try:
                     result = func(*args, **kwargs)
-                    if attempt > 0:
-                        logger.info(f"函数 {func.__name__} 重试 {attempt} 次后成功")
+                    if retry > 0:
+                        logger.info(f"函数{func.__name__}重试{retry}次后成功")
                     return result
                     
                 except config.retry_on_exceptions as e:
-                    last_exception = e
-                    
-                    if attempt == config.max_retries:
+                    if retry == config.max_retries:
                         # 最后一次尝试也失败了
-                        logger.error(f"函数 {func.__name__} 在 {config.max_retries + 1} 次尝试后仍然失败")
+                        logger.error(f"函数{func.__name__}在{config.max_retries}次重试后仍然失败")
                         logger.error(f"最终错误: {str(e)}")
                         raise e
 
                     # 计算延迟时间
                     delay = min(
-                        config.delay * (config.delay_factor ** attempt),
+                        config.delay * (config.delay_factor ** retry),
                         config.max_delay
                     )
 
-                    logger.warning(f"函数 {func.__name__} 第 {attempt + 1} 次尝试失败: {str(e)}")
-                    logger.info(f"将在 {delay:.1f} 秒后进行第 {attempt + 2} 次尝试...")
+                    logger.warning(f"函数{func.__name__}第{retry+1}次运行失败: {str(e)}")
+                    logger.info(f"将在{delay:.1f}秒后进行第{retry+1}次尝试...")
                     
                     time.sleep(delay)
                 
@@ -103,7 +95,6 @@ def with_retry(config: RetryConfig = None):
                     # 不在重试列表中的异常，直接抛出
                     logger.error(f"函数 {func.__name__} 遇到不可重试的异常: {str(e)}")
                     raise e
-
         return wrapper
     return decorator
 
@@ -267,4 +258,33 @@ if __name__ == "__main__":
 
     print("=== 测试3: 不可重试的异常 ===")
     result = test_3()
-    print(f"结果: {result}")
+    print(f"结果: {result}\n")
+
+    # 测试 with_retry 装饰器
+    print("=== 测试 with_retry 装饰器 ===")
+    call_count_2 = 0
+
+    @with_retry(config=test_config)
+    def test_with_retry():
+        global call_count_2
+        call_count_2 += 1
+        if call_count_2 < 2:
+            raise ConnectionError(f"失败")
+        return "with_retry 成功"
+
+    print("测试: 失败1次后成功")
+    result = test_with_retry()
+    print(f"结果: {result}\n")
+
+    # 测试 with_retry 装饰器 - 最大尝试次数都失败
+    print("=== 测试 with_retry 装饰器 - 全部失败 ===")
+
+    @with_retry(config=test_config)
+    def test_with_retry_fail():
+        raise ConnectionError("一直失败")
+
+    print("测试: 最大尝试次数都失败，应该抛出异常")
+    try:
+        result = test_with_retry_fail()
+    except ConnectionError as e:
+        print(f"捕获异常: {e}")

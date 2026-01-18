@@ -5,11 +5,13 @@
 
 from .text_processing import (
     clean_json_tags,
-    clean_markdown_tags, 
+    clean_markdown_tags,
     remove_reasoning_from_output,
-    extract_clean_response,
-    update_state_with_search_results,
-    format_search_results_for_prompt
+    extract_json,
+    update_state,
+    validate_json_schema,
+    truncate_content,
+    get_search_content
 )
 
 from .config import Settings
@@ -17,9 +19,11 @@ from .config import Settings
 __all__ = [
     "clean_json_tags",
     "clean_markdown_tags",
-    "remove_reasoning_from_output", 
-    "extract_clean_response",
-    "update_state_with_search_results",
-    "format_search_results_for_prompt",
+    "remove_reasoning_from_output",
+    "extract_json",
+    "update_state",
+    "validate_json_schema",
+    "truncate_content",
+    "get_search_content",
     "Settings",
 ]

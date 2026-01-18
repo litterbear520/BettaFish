@@ -1,9 +1,5 @@
 """
-Query Engine 配置管理模块
-
-此模块使用 pydantic-settings 管理 Query Engine 的配置，支持从环境变量和 .env 文件自动加载。
-数据模型定义位置：
-- 本文件 - 配置模型定义
+Query Engine 配置管理模块，支持从环境变量和 .env 文件自动加载。
 """
 
 from pathlib import Path
@@ -20,10 +16,7 @@ ENV_FILE: str = str(CWD_ENV if CWD_ENV.exists() else (PROJECT_ROOT / ".env"))
 
 
 class Settings(BaseSettings):
-    """
-    Query Engine 全局配置；支持 .env 和环境变量自动加载。
-    变量名与原 config.py 大写一致，便于平滑过渡。
-    """
+    """搜索智能体全局配置，支持.env和环境变量自动加载。"""
     
     # ======================= LLM 相关 =======================
     QUERY_ENGINE_API_KEY: str = Field(..., description="Query Engine LLM API密钥，用于主LLM。您可以更改每个部分LLM使用的API，🚩只要兼容OpenAI请求格式都可以，定义好KEY、BASE_URL与MODEL_NAME即可正常使用。")
@@ -46,23 +39,21 @@ class Settings(BaseSettings):
     SAVE_INTERMEDIATE_STATES: bool = Field(True, description="是否保存中间状态")
     
     class Config:
-        env_file = ENV_FILE
-        env_prefix = ""
-        case_sensitive = False
-        extra = "allow"
+        env_file = ENV_FILE    # 从.env读取环境变量
+        env_prefix = ""        # 环境变量前缀
+        case_sensitive = False # 字段不区分大小写
+        extra = "allow"        # 允许额外的字段
 
 
 # 创建全局配置实例
 settings = Settings()
 
 def print_config(config: Settings):
+    """打印配置信息
+
+    :param config: Settings配置对象
     """
-    打印配置信息
-    
-    Args:
-        config: Settings配置对象
-    """
-    message = ""
+    message = "\n"  # 开始添加换行
     message += "=== Query Engine 配置 ===\n"
     message += f"LLM 模型: {config.QUERY_ENGINE_MODEL_NAME}\n"
     message += f"LLM Base URL: {config.QUERY_ENGINE_BASE_URL or '(默认)'}\n"
@@ -77,3 +68,8 @@ def print_config(config: Settings):
     message += f"LLM API Key: {'已配置' if config.QUERY_ENGINE_API_KEY else '未配置'}\n"
     message += "========================\n"
     logger.info(message)
+
+
+if __name__ == "__main__":
+    print("当前配置信息：")
+    print_config(settings)

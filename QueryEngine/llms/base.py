@@ -1,5 +1,5 @@
 """
-Unified OpenAI-compatible LLM client for the Query Engine, with retry support.
+用于查询引擎的统一 OpenAI 兼容大型语言模型客户端，支持重试功能。
 """
 
 import os
@@ -17,7 +17,7 @@ if utils_dir not in sys.path:
     sys.path.append(utils_dir)
 
 try:
-    from retry_helper import with_retry, LLM_RETRY_CONFIG
+    from utils.retry import with_retry, LLM_RETRY_CONFIG
 except ImportError:
     def with_retry(config=None):
         def decorator(func):
@@ -28,18 +28,18 @@ except ImportError:
 
 
 class LLMClient:
-    """Minimal wrapper around the OpenAI-compatible chat completion API."""
+    """OpenAI兼容的通用LLM客户端"""
 
-    def __init__(self, api_key: str, model_name: str, base_url: Optional[str] = None):
+    def __init__(self, api_key: str, model: str, base_url: Optional[str] = None):
         if not api_key:
-            raise ValueError("Query Engine LLM API key is required.")
-        if not model_name:
-            raise ValueError("Query Engine model name is required.")
+            raise ValueError("LLM密钥为空")
+        if not model:
+            raise ValueError("LLM模型为空")
 
         self.api_key = api_key
         self.base_url = base_url
-        self.model_name = model_name
-        self.provider = model_name
+        self.model_name = model
+        self.provider = model
         timeout_fallback = os.getenv("LLM_REQUEST_TIMEOUT") or os.getenv("QUERY_ENGINE_REQUEST_TIMEOUT") or "1800"
         try:
             self.timeout = float(timeout_fallback)
@@ -84,16 +84,12 @@ class LLMClient:
         return ""
 
     def stream_invoke(self, system_prompt: str, user_prompt: str, **kwargs) -> Generator[str, None, None]:
-        """
-        流式调用LLM，逐步返回响应内容
-        
-        Args:
-            system_prompt: 系统提示词
-            user_prompt: 用户提示词
-            **kwargs: 额外参数（temperature, top_p等）
-            
-        Yields:
-            响应文本块（str）
+        """流式调用LLM逐步返回响应内容
+
+        :param system_prompt: 系统提示词
+        :param user_prompt: 用户提示词
+        :param **kwargs: 额外参数
+        :yields: 响应文本块
         """
         current_time = datetime.now().strftime("%Y年%m月%d日%H时%M分")
         time_prefix = f"今天的实际时间是{current_time}"
@@ -122,26 +118,21 @@ class LLMClient:
             )
             
             for chunk in stream:
-                if chunk.choices and len(chunk.choices) > 0:
-                    delta = chunk.choices[0].delta
-                    if delta and delta.content:
-                        yield delta.content
+                content = chunk.choices[0].delta.content or ""
+                if content:
+                    yield content
         except Exception as e:
             logger.error(f"流式请求失败: {str(e)}")
             raise e
     
     @with_retry(LLM_RETRY_CONFIG)
     def stream_invoke_to_string(self, system_prompt: str, user_prompt: str, **kwargs) -> str:
-        """
-        流式调用LLM并安全地拼接为完整字符串（避免UTF-8多字节字符截断）
+        """流式调用LLM并安全地拼接为完整字符串（避免UTF-8多字节字符截断）
         
-        Args:
-            system_prompt: 系统提示词
-            user_prompt: 用户提示词
-            **kwargs: 额外参数（temperature, top_p等）
-            
-        Returns:
-            完整的响应字符串
+        :param system_prompt: 系统提示词
+        :param user_prompt: 用户提示词
+        :param **kwargs: 额外参数
+        :returns: 完整的响应字符串
         """
         # 以字节形式收集所有块
         byte_chunks = []
@@ -162,6 +153,6 @@ class LLMClient:
     def get_model_info(self) -> Dict[str, Any]:
         return {
             "provider": self.provider,
-            "model": self.model_name,
-            "api_base": self.base_url or "default",
+            "model": self.model,
+            "base_url": self.base_url or "default",
         }

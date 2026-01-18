@@ -10,14 +10,10 @@ from json.decoder import JSONDecodeError
 
 
 def clean_json_tags(text: str) -> str:
-    """
-    清理文本中的JSON标签
-    
-    Args:
-        text: 原始文本
-        
-    Returns:
-        清理后的文本
+    """清理文本中的JSON标签
+
+    :param text: 原始文本
+    :returns: 清理后的文本
     """
     # 移除```json 和 ```标签
     text = re.sub(r'```json\s*', '', text)
@@ -28,14 +24,10 @@ def clean_json_tags(text: str) -> str:
 
 
 def clean_markdown_tags(text: str) -> str:
-    """
-    清理文本中的Markdown标签
-    
-    Args:
-        text: 原始文本
-        
-    Returns:
-        清理后的文本
+    """清理文本中的Markdown标签
+
+    :param text: 原始文本
+    :returns: 清理后的文本
     """
     # 移除```markdown 和 ```标签
     text = re.sub(r'```markdown\s*', '', text)
@@ -46,14 +38,10 @@ def clean_markdown_tags(text: str) -> str:
 
 
 def remove_reasoning_from_output(text: str) -> str:
-    """
-    移除输出中的推理过程文本
-    
-    Args:
-        text: 原始文本
-        
-    Returns:
-        清理后的文本
+    """移除输出中的推理过程文本
+
+    :param text: 原始文本
+    :returns: 清理后的文本
     """
     # 查找JSON开始位置
     json_start = -1
@@ -82,15 +70,11 @@ def remove_reasoning_from_output(text: str) -> str:
     return text.strip()
 
 
-def extract_clean_response(text: str) -> Dict[str, Any]:
-    """
-    提取并清理响应中的JSON内容
-    
-    Args:
-        text: 原始响应文本
-        
-    Returns:
-        解析后的JSON字典
+def extract_json(text: str) -> Dict[str, Any]:
+    """提取并清理响应中的JSON内容
+
+    :param text: 原始响应文本
+    :returns: 解析后的JSON字典
     """
     # 清理文本
     cleaned_text = clean_json_tags(text)
@@ -134,14 +118,10 @@ def extract_clean_response(text: str) -> Dict[str, Any]:
 
 
 def fix_incomplete_json(text: str) -> str:
-    """
-    修复不完整的JSON响应
-    
-    Args:
-        text: 原始文本
-        
-    Returns:
-        修复后的JSON文本，如果无法修复则返回空字符串
+    """修复不完整的JSON响应
+
+    :param text: 原始文本
+    :returns: 修复后的JSON文本，如果无法修复则返回空字符串
     """
     # 移除多余的逗号和空白
     text = re.sub(r',\s*}', '}', text)
@@ -196,14 +176,10 @@ def fix_incomplete_json(text: str) -> str:
 
 
 def fix_aggressive_json(text: str) -> str:
-    """
-    更激进的JSON修复方法
-    
-    Args:
-        text: 原始文本
-        
-    Returns:
-        修复后的JSON文本
+    """更激进的JSON修复方法
+
+    :param text: 原始文本
+    :returns: 修复后的JSON文本
     """
     # 查找所有可能的JSON对象
     objects = re.findall(r'\{[^{}]*\}', text)
@@ -219,58 +195,41 @@ def fix_aggressive_json(text: str) -> str:
         return '[]'
 
 
-def update_state_with_search_results(search_results: List[Dict[str, Any]], 
-                                   paragraph_index: int, state: Any) -> Any:
-    """
-    将搜索结果更新到状态中
-    
-    Args:
-        search_results: 搜索结果列表
-        paragraph_index: 段落索引
-        state: 状态对象
-        
-    Returns:
-        更新后的状态对象
+def update_state(search_results: List[Dict[str, Any]],
+                 paragraph_index: int, state: Any, query: str = "") -> Any:
+    """将搜索结果更新到状态中
+
+    :param search_results: 搜索结果列表
+    :param paragraph_index: 段落索引
+    :param state: 状态对象
+    :param query: 搜索查询词
+    :returns: 更新后的状态对象
     """
     if 0 <= paragraph_index < len(state.paragraphs):
-        # 获取最后一次搜索的查询（假设是当前查询）
-        current_query = ""
-        if search_results:
-            # 从搜索结果推断查询（这里需要改进以获取实际查询）
-            current_query = "搜索查询"
-        
         # 添加搜索结果到状态
         state.paragraphs[paragraph_index].research.add_search_results(
-            current_query, search_results
+            query, search_results
         )
-    
+
     return state
 
 
 def validate_json_schema(data: Dict[str, Any], required_fields: List[str]) -> bool:
-    """
-    验证JSON数据是否包含必需字段
-    
-    Args:
-        data: 要验证的数据
-        required_fields: 必需字段列表
-        
-    Returns:
-        验证是否通过
+    """验证JSON数据是否包含必需字段
+
+    :param data: 要验证的数据
+    :param required_fields: 必需字段列表
+    :returns: 验证是否通过
     """
     return all(field in data for field in required_fields)
 
 
 def truncate_content(content: str, max_length: int = 20000) -> str:
-    """
-    截断内容到指定长度
-    
-    Args:
-        content: 原始内容
-        max_length: 最大长度
-        
-    Returns:
-        截断后的内容
+    """截断内容到指定长度
+
+    :param content: 原始内容
+    :param max_length: 最大长度
+    :returns: 截断后的内容
     """
     if len(content) <= max_length:
         return content
@@ -285,24 +244,20 @@ def truncate_content(content: str, max_length: int = 20000) -> str:
         return truncated + "..."
 
 
-def format_search_results_for_prompt(search_results: List[Dict[str, Any]], 
-                                   max_length: int = 20000) -> List[str]:
+def get_search_content(search_results: List[Dict[str, Any]],
+                       max_length: int = 20000) -> List[str]:
+    """获取搜索结果的内容列表
+
+    :param search_results: 搜索结果列表
+    :param max_length: 每个结果的最大长度
+    :returns: 内容列表
     """
-    格式化搜索结果用于提示词
-    
-    Args:
-        search_results: 搜索结果列表
-        max_length: 每个结果的最大长度
-        
-    Returns:
-        格式化后的内容列表
-    """
-    formatted_results = []
+    results = []
     
     for result in search_results:
         content = result.get('content', '')
         if content:
             truncated_content = truncate_content(content, max_length)
-            formatted_results.append(truncated_content)
+            results.append(truncated_content)
     
-    return formatted_results
+    return results
