@@ -71,7 +71,7 @@ class Research:
         """获取搜索次数"""
         return len(self.search_history)
     
-    def increment_reflection(self):
+    def add_reflection(self):
         """增加反思次数"""
         self.reflection_iteration += 1
     
@@ -91,7 +91,7 @@ class Research:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Research":
         """从字典创建Research对象"""
-        search_history = [Search.from_dict(search_data) for search_data in data.get("search_history", [])]
+        search_history = [Search.from_dict(i) for i in data.get("search_history", [])]
         return cls(
             search_history=search_history,
             latest_summary=data.get("latest_summary", ""),
@@ -103,10 +103,10 @@ class Research:
 @dataclass
 class Paragraph:
     """报告中单个段落的状态"""
-    title: str = ""                                                # 段落标题
-    content: str = ""                                              # 段落的预期内容（初始规划）
-    research: Research = field(default_factory=Research)          # 研究进度
-    order: int = 0                                                 # 段落顺序
+    title: str = ""                                      # 段落标题
+    content: str = ""                                    # 段落的预期内容（初始规划）
+    research: Research = field(default_factory=Research) # 研究进度
+    index: int = 0                                       # 段落顺序
     
     def is_completed(self) -> bool:
         """检查段落是否完成"""
@@ -122,7 +122,7 @@ class Paragraph:
             "title": self.title,
             "content": self.content,
             "research": self.research.to_dict(),
-            "order": self.order
+            "index": self.index
         }
     
     @classmethod
@@ -135,7 +135,7 @@ class Paragraph:
             title=data.get("title", ""),
             content=data.get("content", ""),
             research=research,
-            order=data.get("order", 0)
+            index=data.get("index", 0)
         )
 
 
@@ -151,21 +151,17 @@ class State:
     updated_at: str = field(default_factory=lambda: datetime.now().isoformat())
     
     def add_paragraph(self, title: str, content: str) -> int:
+        """添加段落
+
+        :param title: 段落标题
+        :param content: 段落内容
+        :returns: 段落索引
         """
-        添加段落
-        
-        Args:
-            title: 段落标题
-            content: 段落内容
-            
-        Returns:
-            段落索引
-        """
-        order = len(self.paragraphs)
-        paragraph = Paragraph(title=title, content=content, order=order)
+        index = len(self.paragraphs) # 索引从0开始
+        paragraph = Paragraph(title=title, content=content, index=index)
         self.paragraphs.append(paragraph)
         self.update_timestamp()
-        return order
+        return index
     
     def get_paragraph(self, index: int) -> Optional[Paragraph]:
         """获取指定索引的段落"""
