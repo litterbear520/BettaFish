@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 from json.decoder import JSONDecodeError
 from loguru import logger
 
-from .base_node import StateMutationNode
+from .base_node import StateChangeNode
 from ..state.state import State
 from ..prompts import SYSTEM_PROMPT_FIRST_SUMMARY, SYSTEM_PROMPT_REFLECTION_SUMMARY
 from ..utils.text_processing import (
@@ -31,15 +31,14 @@ except ImportError:
     logger.warning("无法导入forum_reader模块，将跳过HOST发言读取功能")
 
 
-class FirstSummaryNode(StateMutationNode):
+class FirstSummaryNode(StateChangeNode):
     """根据搜索结果生成段落首次总结的节点"""
     
     def __init__(self, llm_client):
         """
         初始化首次总结节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "FirstSummaryNode")
     
@@ -61,12 +60,9 @@ class FirstSummaryNode(StateMutationNode):
         """
         调用LLM生成段落总结
         
-        Args:
-            input_data: 包含title、content、search_query和search_results的数据
-            **kwargs: 额外参数
-            
-        Returns:
-            段落总结内容
+        :param input_data: 包含title、content、search_query和search_results的数据
+        :param **kwargs: 额外参数
+        :returns: 段落总结内容
         """
         try:
             if not self.validate_input(input_data):
@@ -119,11 +115,8 @@ class FirstSummaryNode(StateMutationNode):
         """
         处理LLM输出，提取段落内容
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            段落内容
+        :param output: LLM原始输出
+        :returns: 段落内容
         """
         try:
             # 清理响应文本
@@ -167,18 +160,15 @@ class FirstSummaryNode(StateMutationNode):
             logger.exception(f"处理输出失败: {str(e)}")
             return "段落总结生成失败"
     
-    def mutate_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
+    def change_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
         """
         更新段落的最新总结到状态
         
-        Args:
-            input_data: 输入数据
-            state: 当前状态
-            paragraph_index: 段落索引
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的状态
+        :param input_data: 输入数据
+        :param state: 当前状态
+        :param paragraph_index: 段落索引
+        :param **kwargs: 额外参数
+        :returns: 更新后的状态
         """
         try:
             # 生成总结
@@ -199,15 +189,14 @@ class FirstSummaryNode(StateMutationNode):
             raise e
 
 
-class ReflectionSummaryNode(StateMutationNode):
+class ReflectionSummaryNode(StateChangeNode):
     """根据反思搜索结果更新段落总结的节点"""
     
     def __init__(self, llm_client):
         """
         初始化反思总结节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "ReflectionSummaryNode")
     
@@ -229,12 +218,9 @@ class ReflectionSummaryNode(StateMutationNode):
         """
         调用LLM更新段落内容
         
-        Args:
-            input_data: 包含完整反思信息的数据
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的段落内容
+        :param input_data: 包含完整反思信息的数据
+        :param **kwargs: 额外参数
+        :returns: 更新后的段落内容
         """
         try:
             if not self.validate_input(input_data):
@@ -335,18 +321,15 @@ class ReflectionSummaryNode(StateMutationNode):
             logger.exception(f"处理输出失败: {str(e)}")
             return "反思总结生成失败"
     
-    def mutate_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
+    def change_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
         """
         将更新后的总结写入状态
         
-        Args:
-            input_data: 输入数据
-            state: 当前状态
-            paragraph_index: 段落索引
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的状态
+        :param input_data: 输入数据
+        :param state: 当前状态
+        :param paragraph_index: 段落索引
+        :param **kwargs: 额外参数
+        :returns: 更新后的状态
         """
         try:
             # 生成更新后的总结

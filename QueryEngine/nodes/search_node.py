@@ -25,8 +25,7 @@ class FirstSearchNode(BaseNode):
         """
         初始化首次搜索节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "FirstSearchNode")
     
@@ -46,12 +45,9 @@ class FirstSearchNode(BaseNode):
         """
         调用LLM生成搜索查询和理由
         
-        Args:
-            input_data: 包含title和content的字符串或字典
-            **kwargs: 额外参数
-            
-        Returns:
-            包含search_query和reasoning的字典
+        :param input_data: 包含title和content的字符串或字典
+        :param **kwargs: 额外参数
+        :returns: 包含search_query和reasoning的字典
         """
         try:
             if not self.validate_input(input_data):
@@ -158,8 +154,7 @@ class ReflectionNode(BaseNode):
         """
         初始化反思节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "ReflectionNode")
     

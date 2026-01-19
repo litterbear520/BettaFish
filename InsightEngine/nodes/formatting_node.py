@@ -17,7 +17,7 @@ from ..utils.text_processing import (
 
 
 
-class ReportFormattingNode(BaseNode):
+class ReportFormatNode(BaseNode):
     """格式化最终报告的节点"""
     
     def __init__(self, llm_client):
@@ -27,7 +27,7 @@ class ReportFormattingNode(BaseNode):
         Args:
             llm_client: LLM客户端
         """
-        super().__init__(llm_client, "ReportFormattingNode")
+        super().__init__(llm_client, "ReportFormatNode")
     
     def validate_input(self, input_data: Any) -> bool:
         """验证输入数据"""

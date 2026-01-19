@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 from json.decoder import JSONDecodeError
 from loguru import logger
 
-from .base_node import StateMutationNode
+from .base_node import StateChangeNode
 from ..state.state import State
 from ..prompts import SYSTEM_PROMPT_REPORT_STRUCTURE
 from ..utils.text_processing import (
@@ -19,7 +19,7 @@ from ..utils.text_processing import (
 )
 
 
-class ReportStructureNode(StateMutationNode):
+class ReportStructureNode(StateChangeNode):
     """生成报告结构的节点"""
     
     def __init__(self, llm_client, query: str):
@@ -165,7 +165,7 @@ class ReportStructureNode(StateMutationNode):
             }
         ]
     
-    def mutate_state(self, input_data: Any = None, state: State = None, **kwargs) -> State:
+    def change_state(self, input_data: Any = None, state: State = None, **kwargs) -> State:
         """
         将报告结构写入状态
         

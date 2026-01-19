@@ -4,7 +4,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
 from loguru import logger
 from ..llms.base import LLMClient
 from ..state.state import State
@@ -75,11 +75,11 @@ class BaseNode(ABC):
         logger.error(f"[{self.node_name}] 错误: {message}")
 
 
-class StateMutationNode(BaseNode):
+class StateChangeNode(BaseNode):
     """带状态修改功能的节点基类"""
     
     @abstractmethod
-    def mutate_state(self, input_data: Any, state: State, **kwargs) -> State:
+    def change_state(self, input_data: Any, state: State, **kwargs) -> State:
         """
         修改状态
         

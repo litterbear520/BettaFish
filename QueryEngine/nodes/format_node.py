@@ -15,17 +15,16 @@ from ..utils.text_processing import (
 )
 
 
-class ReportFormattingNode(BaseNode):
+class ReportFormatNode(BaseNode):
     """格式化最终报告的节点"""
     
     def __init__(self, llm_client):
         """
         初始化报告格式化节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
-        super().__init__(llm_client, "ReportFormattingNode")
+        super().__init__(llm_client, "ReportFormatNode")
     
     def validate_input(self, input_data: Any) -> bool:
         """验证输入数据"""
@@ -49,12 +48,9 @@ class ReportFormattingNode(BaseNode):
         """
         调用LLM生成Markdown格式报告
         
-        Args:
-            input_data: 包含所有段落信息的列表
-            **kwargs: 额外参数
-            
-        Returns:
-            格式化的Markdown报告
+        :param input_data: 包含所有段落信息的列表
+        :param kwargs: 额外参数
+        :returns:格式化的Markdown报告
         """
         try:
             if not self.validate_input(input_data):
@@ -88,11 +84,8 @@ class ReportFormattingNode(BaseNode):
         """
         处理LLM输出，清理Markdown格式
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            清理后的Markdown报告
+        :param output: LLM原始输出
+        :returns: 清理后的Markdown报告
         """
         try:
             # 清理响应文本
@@ -118,12 +111,9 @@ class ReportFormattingNode(BaseNode):
         """
         手动格式化报告（备用方法）
         
-        Args:
-            paragraphs_data: 段落数据列表
-            report_title: 报告标题
-            
-        Returns:
-            格式化的Markdown报告
+        :param paragraphs_data: 段落数据列表
+        :param report_title: 报告标题
+        :returns: 格式化的Markdown报告
         """
         try:
             logger.info("使用手动格式化方法")

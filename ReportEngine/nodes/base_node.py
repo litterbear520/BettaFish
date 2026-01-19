@@ -82,7 +82,7 @@ class BaseNode(ABC):
         logger.error(formatted_message)
 
 
-class StateMutationNode(BaseNode):
+class StateChangeNode(BaseNode):
     """
     带状态修改功能的节点基类。
 
@@ -90,7 +90,7 @@ class StateMutationNode(BaseNode):
     """
     
     @abstractmethod
-    def mutate_state(self, input_data: Any, state: ReportState, **kwargs) -> ReportState:
+    def change_state(self, input_data: Any, state: ReportState, **kwargs) -> ReportState:
         """
         修改状态。
 

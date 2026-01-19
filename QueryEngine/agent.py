@@ -16,7 +16,7 @@ from .nodes import (
     ReflectionNode,
     FirstSummaryNode,
     ReflectionSummaryNode,
-    ReportFormattingNode
+    ReportFormatNode
 )
 from .state import State
 from .tools import TavilyToolsClient, TavilyResponse
@@ -70,7 +70,7 @@ class DeepSearchAgent:
         self.reflection_node = ReflectionNode(self.llm_client)
         self.first_summary_node = FirstSummaryNode(self.llm_client)
         self.reflection_summary_node = ReflectionSummaryNode(self.llm_client)
-        self.report_formatting_node = ReportFormattingNode(self.llm_client)
+        self.report_formatting_node = ReportFormatNode(self.llm_client)
     
     def _validate_date_format(self, date_str: str) -> bool:
         """
@@ -187,7 +187,7 @@ class DeepSearchAgent:
         report_structure_node = ReportStructureNode(self.llm_client, query)
         
         # 生成结构并更新状态
-        self.state = report_structure_node.mutate_state(state=self.state)
+        self.state = report_structure_node.change_state(state=self.state)
         
         _message = f"报告结构已生成，共 {len(self.state.paragraphs)} 个段落:"
         for i, paragraph in enumerate(self.state.paragraphs, 1):
@@ -298,7 +298,7 @@ class DeepSearchAgent:
         }
         
         # 更新状态
-        self.state = self.first_summary_node.mutate_state(
+        self.state = self.first_summary_node.change_state(
             summary_input, self.state, paragraph_index
         )
         
@@ -389,7 +389,7 @@ class DeepSearchAgent:
             }
             
             # 更新状态
-            self.state = self.reflection_summary_node.mutate_state(
+            self.state = self.reflection_summary_node.change_state(
                 reflection_summary_input, self.state, paragraph_index
             )
             

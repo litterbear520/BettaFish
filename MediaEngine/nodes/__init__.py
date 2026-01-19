@@ -7,7 +7,7 @@ from .base_node import BaseNode
 from .report_structure_node import ReportStructureNode
 from .search_node import FirstSearchNode, ReflectionNode
 from .summary_node import FirstSummaryNode, ReflectionSummaryNode
-from .formatting_node import ReportFormattingNode
+from .format_node import ReportFormatNode
 
 __all__ = [
     "BaseNode",
@@ -16,5 +16,5 @@ __all__ = [
     "ReflectionNode", 
     "FirstSummaryNode",
     "ReflectionSummaryNode",
-    "ReportFormattingNode"
+    "ReportFormatNode"
 ]

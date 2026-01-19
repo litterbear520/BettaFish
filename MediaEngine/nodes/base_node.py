@@ -17,9 +17,8 @@ class BaseNode(ABC):
         """
         初始化节点
 
-        Args:
-            llm_client: LLM客户端
-            node_name: 节点名称
+        :param llm_client: LLM客户端
+        :param node_name: 节点名称
         """
         self.llm_client = llm_client
         self.node_name = node_name or self.__class__.__name__
@@ -29,11 +28,9 @@ class BaseNode(ABC):
         """
         执行节点处理逻辑
 
-        Args:
-            input_data: 输入数据
-            **kwargs: 额外参数
-
-        Returns:
+        :param input_data: 输入数据
+        :param **kwargs: 额外参数
+        :returns:
             处理结果
         """
         pass
@@ -42,11 +39,8 @@ class BaseNode(ABC):
         """
         验证输入数据
 
-        Args:
-            input_data: 输入数据
-
-        Returns:
-            验证是否通过
+        :param input_data: 输入数据
+        :returns: 验证是否通过
         """
         return True
 
@@ -54,11 +48,8 @@ class BaseNode(ABC):
         """
         处理输出数据
 
-        Args:
-            output: 原始输出
-
-        Returns:
-            处理后的输出
+        :param output: 原始输出
+        :returns: 处理后的输出
         """
         return output
 
@@ -75,20 +66,17 @@ class BaseNode(ABC):
         logger.error(f"[{self.node_name}] 错误: {message}")
 
 
-class StateMutationNode(BaseNode):
+class StateChangeNode(BaseNode):
     """带状态修改功能的节点基类"""
     
     @abstractmethod
-    def mutate_state(self, input_data: Any, state: State, **kwargs) -> State:
+    def change_state(self, input_data: Any, state: State, **kwargs) -> State:
         """
         修改状态
         
-        Args:
-            input_data: 输入数据
-            state: 当前状态
-            **kwargs: 额外参数
-            
-        Returns:
-            修改后的状态
+        :param input_data: 输入数据
+        :param state: 当前状态
+        :param **kwargs: 额外参数
+        :returns: 修改后的状态
         """
         pass

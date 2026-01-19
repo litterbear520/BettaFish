@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 from json.decoder import JSONDecodeError
 from loguru import logger
 
-from .base_node import StateMutationNode
+from .base_node import StateChangeNode
 from ..state.state import State
 from ..prompts import SYSTEM_PROMPT_REPORT_STRUCTURE
 from ..utils.text_processing import (
@@ -19,16 +19,15 @@ from ..utils.text_processing import (
 )
 
 
-class ReportStructureNode(StateMutationNode):
+class ReportStructureNode(StateChangeNode):
     """生成报告结构的节点"""
     
     def __init__(self, llm_client, query: str):
         """
         初始化报告结构节点
         
-        Args:
-            llm_client: LLM客户端
-            query: 用户查询
+        :param llm_client: LLM客户端
+        :param query: 用户查询
         """
         super().__init__(llm_client, "ReportStructureNode")
         self.query = query
@@ -41,12 +40,9 @@ class ReportStructureNode(StateMutationNode):
         """
         调用LLM生成报告结构
         
-        Args:
-            input_data: 输入数据（这里不使用，使用初始化时的query）
-            **kwargs: 额外参数
-            
-        Returns:
-            报告结构列表
+        :param input_data: 输入数据（这里不使用，使用初始化时的query）
+        :param kwargs: 额外参数
+        :returns: 报告结构列表
         """
         try:
             logger.info(f"正在为查询生成报告结构: {self.query}")
@@ -68,11 +64,8 @@ class ReportStructureNode(StateMutationNode):
         """
         处理LLM输出，提取报告结构
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            处理后的报告结构列表
+        :param output: LLM原始输出
+        :returns: 处理后的报告结构列表
         """
         try:
             # 清理响应文本
@@ -150,8 +143,7 @@ class ReportStructureNode(StateMutationNode):
         """
         生成默认的报告结构
         
-        Returns:
-            默认的报告结构列表
+        :returns: 默认的报告结构列表
         """
         logger.info("生成默认报告结构")
         return [
@@ -165,17 +157,14 @@ class ReportStructureNode(StateMutationNode):
             }
         ]
     
-    def mutate_state(self, input_data: Any = None, state: State = None, **kwargs) -> State:
+    def change_state(self, input_data: Any = None, state: State = None, **kwargs) -> State:
         """
         将报告结构写入状态
         
-        Args:
-            input_data: 输入数据
-            state: 当前状态，如果为None则创建新状态
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的状态
+        :param input_data: 输入数据
+        :param state: 当前状态，如果为None则创建新状态
+        :param **kwargs: 额外参数
+        :returns: 更新后的状态
         """
         if state is None:
             state = State()

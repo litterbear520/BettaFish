@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 from json.decoder import JSONDecodeError
 from loguru import logger
 
-from .base_node import StateMutationNode
+from .base_node import StateChangeNode
 from ..state.state import State
 from ..prompts import SYSTEM_PROMPT_FIRST_SUMMARY, SYSTEM_PROMPT_REFLECTION_SUMMARY
 from ..utils.text_processing import (
@@ -31,7 +31,7 @@ except ImportError:
     logger.warning("警告: 无法导入forum_reader模块，将跳过HOST发言读取功能")
 
 
-class FirstSummaryNode(StateMutationNode):
+class FirstSummaryNode(StateChangeNode):
     """根据搜索结果生成段落首次总结的节点"""
     
     def __init__(self, llm_client):
@@ -119,11 +119,8 @@ class FirstSummaryNode(StateMutationNode):
         """
         处理LLM输出，提取段落内容
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            段落内容
+        :param output: LLM原始输出
+        :returns: 段落内容
         """
         try:
             # 清理响应文本
@@ -167,7 +164,7 @@ class FirstSummaryNode(StateMutationNode):
             logger.exception(f"处理输出失败: {str(e)}")
             return "段落总结生成失败"
     
-    def mutate_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
+    def change_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
         """
         更新段落的最新总结到状态
         
@@ -199,7 +196,7 @@ class FirstSummaryNode(StateMutationNode):
             raise e
 
 
-class ReflectionSummaryNode(StateMutationNode):
+class ReflectionSummaryNode(StateChangeNode):
     """根据反思搜索结果更新段落总结的节点"""
     
     def __init__(self, llm_client):
@@ -335,7 +332,7 @@ class ReflectionSummaryNode(StateMutationNode):
             logger.exception(f"处理输出失败: {str(e)}")
             return "反思总结生成失败"
     
-    def mutate_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
+    def change_state(self, input_data: Any, state: State, paragraph_index: int, **kwargs) -> State:
         """
         将更新后的总结写入状态
         
