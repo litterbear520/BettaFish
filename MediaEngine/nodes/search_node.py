@@ -25,8 +25,7 @@ class FirstSearchNode(BaseNode):
         """
         初始化首次搜索节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "FirstSearchNode")
     

@@ -178,7 +178,7 @@ class State:
     """整个报告的状态"""
     query: str = ""                                                # 原始查询
     report_title: str = ""                                         # 报告标题
-    paragraphs: List[Paragraph] = field(default_factory=list)     # 段落列表
+    paragraphs: List[Paragraph] = field(default_factory=list)      # 段落列表
     final_report: str = ""                                         # 最终报告内容
     is_completed: bool = False                                     # 是否完成
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -188,12 +188,9 @@ class State:
         """
         添加段落
         
-        Args:
-            title: 段落标题
-            content: 段落内容
-            
-        Returns:
-            段落索引
+        :param title: 段落标题
+        :param content: 段落内容
+        :returns: 段落索引
         """
         order = len(self.paragraphs)
         paragraph = Paragraph(title=title, content=content, order=order)

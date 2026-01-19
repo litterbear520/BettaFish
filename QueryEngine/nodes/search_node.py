@@ -46,7 +46,7 @@ class FirstSearchNode(BaseNode):
         调用LLM生成搜索查询和理由
         
         :param input_data: 包含title和content的字符串或字典
-        :param **kwargs: 额外参数
+        :param kwargs: 额外参数
         :returns: 包含search_query和reasoning的字典
         """
         try:
@@ -78,11 +78,8 @@ class FirstSearchNode(BaseNode):
         """
         处理LLM输出，提取搜索查询和推理
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            包含search_query和reasoning的字典
+        :param output: LLM原始输出
+        :returns: 包含search_query和reasoning的字典
         """
         try:
             # 清理响应文本
@@ -138,8 +135,7 @@ class FirstSearchNode(BaseNode):
         """
         获取默认搜索查询
         
-        Returns:
-            默认的搜索查询字典
+        :returns: 默认的搜索查询字典
         """
         return {
             "search_query": "相关主题研究",
@@ -176,12 +172,9 @@ class ReflectionNode(BaseNode):
         """
         调用LLM反思并生成搜索查询
         
-        Args:
-            input_data: 包含title、content和paragraph_latest_state的字符串或字典
-            **kwargs: 额外参数
-            
-        Returns:
-            包含search_query和reasoning的字典
+        :param input_data: 包含title、content和paragraph_latest_state的字符串或字典
+        :param kwargs: 额外参数
+        :returns: 包含search_query和reasoning的字典
         """
         try:
             if not self.validate_input(input_data):
@@ -212,11 +205,8 @@ class ReflectionNode(BaseNode):
         """
         处理LLM输出，提取搜索查询和推理
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            包含search_query和reasoning的字典
+        :param output: LLM原始输出
+        :returns: 包含search_query和reasoning的字典
         """
         try:
             # 清理响应文本
@@ -272,8 +262,7 @@ class ReflectionNode(BaseNode):
         """
         获取默认反思搜索查询
         
-        Returns:
-            默认的反思搜索查询字典
+        :returns: 默认的反思搜索查询字典
         """
         return {
             "search_query": "深度研究补充信息",

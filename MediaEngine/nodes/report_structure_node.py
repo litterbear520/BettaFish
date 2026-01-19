@@ -41,7 +41,7 @@ class ReportStructureNode(StateChangeNode):
         调用LLM生成报告结构
         
         :param input_data: 输入数据（这里不使用，使用初始化时的query）
-        :param **kwargs: 额外参数
+        :param kwargs: 额外参数
         :returns: 报告结构列表
         """
         try:
@@ -163,7 +163,7 @@ class ReportStructureNode(StateChangeNode):
         
         :param input_data: 输入数据
         :param state: 当前状态，如果为None则创建新状态
-        :param **kwargs: 额外参数
+        :param kwargs: 额外参数
         :returns: 更新后的状态
         """
         if state is None:

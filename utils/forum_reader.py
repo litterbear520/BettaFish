@@ -12,11 +12,8 @@ def get_latest_host_speech(log_dir: str = "logs") -> Optional[str]:
     """
     获取forum.log中最新的HOST发言
     
-    Args:
-        log_dir: 日志目录路径
-        
-    Returns:
-        最新的HOST发言内容，如果没有则返回None
+    :param log_dir: 日志目录路径
+    :returns: 最新的HOST发言内容，如果没有则返回None
     """
     try:
         forum_log_path = Path(log_dir) / "forum.log"
@@ -140,11 +137,8 @@ def format_host_speech_for_prompt(host_speech: str) -> str:
     """
     格式化HOST发言，用于添加到prompt中
     
-    Args:
-        host_speech: HOST发言内容
-        
-    Returns:
-        格式化后的内容
+    :param host_speech: HOST发言内容
+    :returns: 格式化后的内容
     """
     if not host_speech:
         return ""

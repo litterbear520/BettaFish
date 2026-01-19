@@ -3,7 +3,6 @@ Deep Search Agent主类
 整合所有模块，实现完整的深度搜索流程
 """
 
-import json
 import os
 import re
 from datetime import datetime
@@ -30,21 +29,20 @@ class DeepSearchAgent:
         """
         初始化Deep Search Agent
         
-        Args:
-            config: 配置对象，如果不提供则自动加载
+        :param config: 配置对象，如果不提供则自动加载
         """
         # 加载配置
         from .utils.config import settings
         self.config = config or settings
         
         # 初始化LLM客户端
-        self.llm_client = self._initialize_llm()
+        self.llm_client = self._init_llm()
         
         # 初始化搜索工具集
-        self.search_agency = TavilyToolsClient(api_key=self.config.TAVILY_API_KEY)
+        self.search_client = TavilyToolsClient(api_key=self.config.TAVILY_API_KEY)
         
         # 初始化节点
-        self._initialize_nodes()
+        self._init_nodes()
         
         # 状态
         self.state = State()
@@ -56,7 +54,7 @@ class DeepSearchAgent:
         logger.info(f"使用LLM: {self.llm_client.get_model_info()}")
         logger.info(f"搜索工具集: TavilyNewsAgency (支持6种搜索工具)")
     
-    def _initialize_llm(self) -> LLMClient:
+    def _init_llm(self) -> LLMClient:
         """初始化LLM客户端"""
         return LLMClient(
             api_key=self.config.QUERY_ENGINE_API_KEY,
@@ -64,7 +62,7 @@ class DeepSearchAgent:
             base_url=self.config.QUERY_ENGINE_BASE_URL,
         )
     
-    def _initialize_nodes(self):
+    def _init_nodes(self):
         """初始化处理节点"""
         self.first_search_node = FirstSearchNode(self.llm_client)
         self.reflection_node = ReflectionNode(self.llm_client)
@@ -76,11 +74,8 @@ class DeepSearchAgent:
         """
         验证日期格式是否为YYYY-MM-DD
         
-        Args:
-            date_str: 日期字符串
-            
-        Returns:
-            是否为有效格式
+        :param date_str: 日期字符串
+        :returns: 是否为有效格式
         """
         if not date_str:
             return False
@@ -101,53 +96,47 @@ class DeepSearchAgent:
         """
         执行指定的搜索工具
         
-        Args:
-            tool_name: 工具名称，可选值：
+        :param tool_name: 工具名称，可选值：
                 - "basic_search": 基础新闻搜索（快速、通用）
-                - "deep_search_news": 深度新闻分析
-                - "search_news_last_24_hours": 24小时内最新新闻
-                - "search_news_last_week": 本周新闻
-                - "search_images_for_news": 新闻图片搜索
-                - "search_news_by_date": 按日期范围搜索新闻
-            query: 搜索查询
-            **kwargs: 额外参数（如start_date, end_date, max_results）
-            
-        Returns:
-            TavilyResponse对象
+                - "deep_search": 深度新闻分析
+                - "search_last_day": 24小时内最新新闻
+                - "search_last_week": 本周新闻
+                - "search_images": 新闻图片搜索
+                - "search_by_date": 按日期范围搜索新闻
+        :param query: 搜索查询
+        :param kwargs: 额外参数（如start_date, end_date, max_results）
+        :returns: TavilyResponse对象
         """
         logger.info(f"  → 执行搜索工具: {tool_name}")
         
         if tool_name == "basic_search":
             max_results = kwargs.get("max_results", 7)
-            return self.search_agency.basic_search(query, max_results)
-        elif tool_name == "deep_search_news":
-            return self.search_agency.deep_search_news(query)
-        elif tool_name == "search_news_last_24_hours":
-            return self.search_agency.search_news_last_24_hours(query)
-        elif tool_name == "search_news_last_week":
-            return self.search_agency.search_news_last_week(query)
-        elif tool_name == "search_images_for_news":
-            return self.search_agency.search_images_for_news(query)
-        elif tool_name == "search_news_by_date":
+            return self.search_client.basic_search(query, max_results)
+        elif tool_name == "deep_search":
+            return self.search_client.deep_search(query)
+        elif tool_name == "search_last_day":
+            return self.search_client.search_last_day(query)
+        elif tool_name == "search_last_week":
+            return self.search_client.search_last_week(query)
+        elif tool_name == "search_images":
+            return self.search_client.search_images(query)
+        elif tool_name == "search_by_date":
             start_date = kwargs.get("start_date")
             end_date = kwargs.get("end_date")
             if not start_date or not end_date:
-                raise ValueError("search_news_by_date工具需要start_date和end_date参数")
-            return self.search_agency.search_news_by_date(query, start_date, end_date)
+                raise ValueError("search_by_date工具需要start_date和end_date参数")
+            return self.search_client.search_by_date(query, start_date, end_date)
         else:
             logger.warning(f"  ⚠️  未知的搜索工具: {tool_name}，使用默认基础搜索")
-            return self.search_agency.basic_search(query)
+            return self.search_client.basic_search(query)
     
     def research(self, query: str, save_report: bool = True) -> str:
         """
         执行深度研究
         
-        Args:
-            query: 研究查询
-            save_report: 是否保存报告到文件
-            
-        Returns:
-            最终报告内容
+        :param query: 研究查询
+        :param save_report: 是否保存报告到文件
+        :returns: 最终报告内容
         """
         logger.info(f"\n{'='*60}")
         logger.info(f"开始深度研究: {query}")
@@ -238,9 +227,9 @@ class DeepSearchAgent:
         # 执行搜索
         logger.info("  - 执行网络搜索...")
         
-        # 处理search_news_by_date的特殊参数
+        # 处理search_by_date的特殊参数
         search_kwargs = {}
-        if search_tool == "search_news_by_date":
+        if search_tool == "search_by_date":
             start_date = search_output.get("start_date")
             end_date = search_output.get("end_date")
             
@@ -255,7 +244,7 @@ class DeepSearchAgent:
                     logger.info(f"      提供的日期: start_date={start_date}, end_date={end_date}")
                     search_tool = "basic_search"
             else:
-                logger.info(f"  ⚠️  search_news_by_date工具缺少时间参数，改用基础搜索")
+                logger.info(f"  ⚠️  search_by_date工具缺少时间参数，改用基础搜索")
                 search_tool = "basic_search"
         
         search_response = self.execute_search_tool(search_tool, search_query, **search_kwargs)
@@ -329,9 +318,9 @@ class DeepSearchAgent:
             logger.info(f"    反思推理: {reasoning}")
             
             # 执行反思搜索
-            # 处理search_news_by_date的特殊参数
+            # 处理search_by_date的特殊参数
             search_kwargs = {}
-            if search_tool == "search_news_by_date":
+            if search_tool == "search_by_date":
                 start_date = reflection_output.get("start_date")
                 end_date = reflection_output.get("end_date")
                 
@@ -346,7 +335,7 @@ class DeepSearchAgent:
                         logger.info(f"        提供的日期: start_date={start_date}, end_date={end_date}")
                         search_tool = "basic_search"
                 else:
-                    logger.info(f"    ⚠️  search_news_by_date工具缺少时间参数，改用基础搜索")
+                    logger.info(f"    ⚠️  search_by_date工具缺少时间参数，改用基础搜索")
                     search_tool = "basic_search"
             
             search_response = self.execute_search_tool(search_tool, search_query, **search_kwargs)
@@ -465,8 +454,7 @@ def create_agent() -> DeepSearchAgent:
     """
     创建Deep Search Agent实例的便捷函数
     
-    Returns:
-        DeepSearchAgent实例
+    :returns: DeepSearchAgent实例
     """
     from .utils.config import Settings
     config = Settings()

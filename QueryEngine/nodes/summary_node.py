@@ -4,7 +4,7 @@
 """
 
 import json
-from typing import Dict, Any, List
+from typing import Any
 from json.decoder import JSONDecodeError
 from loguru import logger
 
@@ -14,9 +14,7 @@ from ..prompts import SYSTEM_PROMPT_FIRST_SUMMARY, SYSTEM_PROMPT_REFLECTION_SUMM
 from ..utils.text_processing import (
     remove_reasoning_from_output,
     clean_json_tags,
-    extract_json,
     fix_incomplete_json,
-    get_search_content
 )
 
 # 导入论坛读取工具
@@ -38,8 +36,7 @@ class FirstSummaryNode(StateChangeNode):
         """
         初始化首次总结节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "FirstSummaryNode")
     
@@ -61,12 +58,9 @@ class FirstSummaryNode(StateChangeNode):
         """
         调用LLM生成段落总结
         
-        Args:
-            input_data: 包含title、content、search_query和search_results的数据
-            **kwargs: 额外参数
-            
-        Returns:
-            段落总结内容
+        :param input_data: 包含title、content、search_query和search_results的数据
+        :param kwargs: 额外参数  
+        :returns: 段落总结内容
         """
         try:
             if not self.validate_input(input_data):
@@ -168,14 +162,11 @@ class FirstSummaryNode(StateChangeNode):
         """
         更新段落的最新总结到状态
         
-        Args:
-            input_data: 输入数据
-            state: 当前状态
-            paragraph_index: 段落索引
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的状态
+        :param input_data: 输入数据
+        :param state: 当前状态
+        :param paragraph_index: 段落索引
+        :param kwargs: 额外参数
+        :returns: 更新后的状态
         """
         try:
             # 生成总结
@@ -203,8 +194,7 @@ class ReflectionSummaryNode(StateChangeNode):
         """
         初始化反思总结节点
         
-        Args:
-            llm_client: LLM客户端
+        :param llm_client: LLM客户端
         """
         super().__init__(llm_client, "ReflectionSummaryNode")
     
@@ -226,12 +216,9 @@ class ReflectionSummaryNode(StateChangeNode):
         """
         调用LLM更新段落内容
         
-        Args:
-            input_data: 包含完整反思信息的数据
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的段落内容
+        :param input_data: 包含完整反思信息的数据
+        :param kwargs: 额外参数
+        :returns: 更新后的段落内容
         """
         try:
             if not self.validate_input(input_data):
@@ -284,11 +271,8 @@ class ReflectionSummaryNode(StateChangeNode):
         """
         处理LLM输出，提取更新后的段落内容
         
-        Args:
-            output: LLM原始输出
-            
-        Returns:
-            更新后的段落内容
+        :param output: LLM原始输出 
+        :returns: 更新后的段落内容
         """
         try:
             # 清理响应文本
@@ -336,14 +320,11 @@ class ReflectionSummaryNode(StateChangeNode):
         """
         将更新后的总结写入状态
         
-        Args:
-            input_data: 输入数据
-            state: 当前状态
-            paragraph_index: 段落索引
-            **kwargs: 额外参数
-            
-        Returns:
-            更新后的状态
+        :param input_data: 输入数据
+        :param state: 当前状态
+        :param paragraph_index: 段落索引
+        :param kwargs: 额外参数
+        :returns: 更新后的状态
         """
         try:
             # 生成更新后的总结
